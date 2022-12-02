@@ -1,18 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-#[derive(PartialEq, Debug)]
-pub struct PuzzleResult {
-    index: usize,
-    value: u128
-}
-
-impl Display for PuzzleResult {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "day01::PuzzleResult(index: {}, value: {})", self.index, self.value)
-    }
-}
-
-pub fn solve_1(input: &String) -> PuzzleResult {
+pub fn solve_1(input: &String) -> u128 {
     let grouped_values = convert_to_grouped_vector(input);
     let added_values = grouped_values.iter()
         .map(|x| add_values(x))
@@ -34,15 +22,13 @@ pub fn solve_2(input: &String) -> u128 {
     added_values.get(added_values.len() - 3).unwrap()
 }
 
-fn find_biggest(values: &Vec<u128>) -> PuzzleResult {
-    let mut biggest = PuzzleResult{index: 0, value: 0};
-    let mut index: usize = 0;
+fn find_biggest(values: &Vec<u128>) -> u128 {
+    let mut biggest = 0;
 
     for value in values {
-        if *value > biggest.value {
-            biggest = PuzzleResult{index, value: *value};
+        if *value > biggest {
+            biggest = *value;
         }
-        index += 1;
     }
     biggest
 }
@@ -103,7 +89,7 @@ mod tests {
     fn test_find_biggest() {
         let input = vec![6000, 4000, 11000, 24000, 10000];
         let actual = find_biggest(&input);
-        let expected = PuzzleResult{index: 3, value: 24000};
+        let expected: u128 = 24000;
         assert_eq!(actual, expected)
     }
 
@@ -111,7 +97,7 @@ mod tests {
     fn test_solve_single_threaded() {
         let input = String::from(INPUT_RAW);
         let actual = solve_1(&input);
-        let expected = PuzzleResult{index: 3, value: 24000};
+        let expected: u128 = 24000;
         assert_eq!(actual, expected)
     }
 
@@ -121,7 +107,7 @@ mod tests {
         let actual = solve_1(&input);
         let expected: u128 = 69626;
 
-        assert_eq!(actual.value, expected);
+        assert_eq!(actual, expected);
     }
 
 
