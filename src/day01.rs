@@ -63,7 +63,6 @@ fn convert_to_grouped_vector(input: &String) -> Box<Vec<Vec<u128>>> {
 mod tests {
     use crate::util;
     use super::*;
-    // use crate::util;
     static INPUT_RAW: &str = "1000\n2000\n3000\n\n4000\n\n5000\n6000\n\n7000\n8000\n9000\n\n10000";
     
     #[test]
@@ -95,7 +94,7 @@ mod tests {
     }
 
     #[test]
-    fn test_solve_single_threaded() {
+    fn test_solve_single_example_input() {
         let input = String::from(INPUT_RAW);
         let actual = solve_1(&input);
         let expected: u128 = 24000;
