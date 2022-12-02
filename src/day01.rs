@@ -1,19 +1,13 @@
-use std::fmt::{Display, Formatter};
-
 pub fn solve_1(input: &String) -> u128 {
     let grouped_values = convert_to_grouped_vector(input);
-    let added_values = grouped_values.iter()
-        .map(|x| add_values(x))
-        .collect::<Vec<u128>>();
+    let added_values = summarize_groups(grouped_values);
 
-    find_biggest(&added_values)
+    find_biggest(added_values)
 }
 
 pub fn solve_2(input: &String) -> u128 {
     let grouped_values = convert_to_grouped_vector(input);
-    let mut added_values = grouped_values.iter()
-        .map(|x| add_values(x))
-        .collect::<Vec<u128>>();
+    let mut added_values = summarize_groups(grouped_values);
 
     added_values.sort();
 
@@ -22,12 +16,19 @@ pub fn solve_2(input: &String) -> u128 {
     added_values.get(added_values.len() - 3).unwrap()
 }
 
-fn find_biggest(values: &Vec<u128>) -> u128 {
+
+pub fn summarize_groups(grouped_values: Box<Vec<Vec<u128>>>) -> Box<Vec<u128>> {
+    Box::new(grouped_values.iter()
+        .map(|x| add_values(x))
+        .collect::<Vec<u128>>())
+}
+
+fn find_biggest(values: Box<Vec<u128>>) -> u128 {
     let mut biggest = 0;
 
-    for value in values {
-        if *value > biggest {
-            biggest = *value;
+    for value in *values {
+        if value > biggest {
+            biggest = value;
         }
     }
     biggest
@@ -41,9 +42,9 @@ fn add_values(values: &Vec<u128>) -> u128 {
     ret
 }
 
-fn convert_to_grouped_vector(input: &String) -> Vec<Vec<u128>> {
+fn convert_to_grouped_vector(input: &String) -> Box<Vec<Vec<u128>>> {
     let individual_strings = input.split('\n').collect::<Vec<&str>>();
-    let mut result: Vec<Vec<u128>> = vec![vec![]];
+    let mut result = Box::new(vec![vec![]]);
     let mut idx = 0;
 
     for individual_string in individual_strings {
@@ -74,7 +75,7 @@ mod tests {
             vec![5000, 6000],
             vec![7000, 8000, 9000],
             vec![10000]];
-        assert_eq!(convert_to_grouped_vector(&input), expected)
+        assert_eq!(*convert_to_grouped_vector(&input), expected)
     }
 
     #[test]
@@ -87,8 +88,8 @@ mod tests {
 
     #[test]
     fn test_find_biggest() {
-        let input = vec![6000, 4000, 11000, 24000, 10000];
-        let actual = find_biggest(&input);
+        let input = Box::new(vec![6000, 4000, 11000, 24000, 10000]);
+        let actual = find_biggest(input);
         let expected: u128 = 24000;
         assert_eq!(actual, expected)
     }
