@@ -12,7 +12,7 @@ impl Display for PuzzleResult {
     }
 }
 
-pub fn solve_1_single_thread(input: &String) -> PuzzleResult {
+pub fn solve_1(input: &String) -> PuzzleResult {
     let grouped_values = convert_to_grouped_vector(input);
     let added_values = grouped_values.iter()
         .map(|x| add_values(x))
@@ -21,7 +21,7 @@ pub fn solve_1_single_thread(input: &String) -> PuzzleResult {
     find_biggest(&added_values)
 }
 
-pub fn solve_2_single_thread(input: &String) -> u128 {
+pub fn solve_2(input: &String) -> u128 {
     let grouped_values = convert_to_grouped_vector(input);
     let mut added_values = grouped_values.iter()
         .map(|x| add_values(x))
@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn test_solve_single_threaded() {
         let input = String::from(INPUT_RAW);
-        let actual = solve_1_single_thread(&input);
+        let actual = solve_1(&input);
         let expected = PuzzleResult{index: 3, value: 24000};
         assert_eq!(actual, expected)
     }
@@ -118,16 +118,17 @@ mod tests {
     #[test]
     fn generate_solution_1() {
         let input = util::get_input(1);
-        let actual = solve_1_single_thread(&input);
+        let actual = solve_1(&input);
         let expected: u128 = 69626;
 
         assert_eq!(actual.value, expected);
     }
 
+
     #[test]
     fn generate_solution_2_st() {
         let input = util::get_input(1);
-        let actual = solve_2_single_thread(&input);
+        let actual = solve_2(&input);
         let expected: u128 = 206780;
         assert_eq!(actual, expected)
     }
