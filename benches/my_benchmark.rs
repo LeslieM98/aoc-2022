@@ -9,7 +9,7 @@ pub fn day01_benches(c: &mut Criterion) {
 }
 
 pub fn day02_benches(c: &mut Criterion) {
-    let input = util::get_input(1);
+    let input = util::get_input(2);
     c.bench_function("Day02.1: ", |b| b.iter(|| day02::solve_1(&input)));
     c.bench_function("Day02.2: ", |b| b.iter(|| day02::solve_2(&input)));
 }
