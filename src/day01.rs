@@ -110,7 +110,7 @@ mod tests {
 
 
     #[test]
-    fn generate_solution_2_st() {
+    fn generate_solution_2() {
         let input = util::get_input(1);
         let actual = solve_2(&input);
         let expected: u128 = 206780;
