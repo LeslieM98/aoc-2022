@@ -67,7 +67,7 @@ mod tests {
     fn generate_solution_2() {
         let input = get_input();
         let actual = solve_2(&input);
-        assert_eq!(0, actual)
+        assert_eq!(7967, actual)
     }
 
     #[test]
