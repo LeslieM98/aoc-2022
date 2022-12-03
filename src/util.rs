@@ -13,10 +13,18 @@ fn build_input_path(day: i8) -> String {
     return file;
 }
 
-pub fn get_input(day: i8) -> String {
+pub fn into_lines_vec(input: &String) -> Vec<String> {
+    input.lines().map(String::from).collect()
+}
+
+pub fn get_input(day: i8) -> Vec<String> {
     let file = build_input_path(day);
-    let contents = fs::read_to_string(file);
-    return contents.expect("Could not find File");
+    let content = fs::read_to_string(file)
+        .expect("Could not find File");
+
+    let splitted = into_lines_vec(&content);
+
+    return splitted;
 }
 
 #[cfg(test)]

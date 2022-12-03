@@ -1,11 +1,11 @@
-pub fn solve_1(input: &String) -> u128 {
+pub fn solve_1(input: &Vec<String>) -> u128 {
     let grouped_values = convert_to_grouped_vector(input);
     let added_values = summarize_groups(grouped_values);
 
     find_biggest(added_values)
 }
 
-pub fn solve_2(input: &String) -> u128 {
+pub fn solve_2(input: &Vec<String>) -> u128 {
     let grouped_values = convert_to_grouped_vector(input);
     let mut added_values = summarize_groups(grouped_values);
 
@@ -42,12 +42,11 @@ fn add_values(values: &Vec<u128>) -> u128 {
     ret
 }
 
-fn convert_to_grouped_vector(input: &String) -> Box<Vec<Vec<u128>>> {
-    let individual_strings = input.split('\n').collect::<Vec<&str>>();
+fn convert_to_grouped_vector(input: &Vec<String>) -> Box<Vec<Vec<u128>>> {
     let mut result = Box::new(vec![vec![]]);
     let mut idx = 0;
 
-    for individual_string in individual_strings {
+    for individual_string in input {
         if individual_string.is_empty() {
             result.push(vec![]);
             idx = idx + 1;
@@ -64,10 +63,9 @@ mod tests {
     use crate::util;
     use super::*;
     static INPUT_RAW: &str = "1000\n2000\n3000\n\n4000\n\n5000\n6000\n\n7000\n8000\n9000\n\n10000";
-    
     #[test]
     fn test_split_at_line_break () {
-        let input = String::from(INPUT_RAW);
+        let input: Vec<String> = util::into_lines_vec(&String::from(INPUT_RAW));
         let expected: Vec<Vec<u128>> = vec![
             vec![1000, 2000, 3000],
             vec![4000],
@@ -95,7 +93,7 @@ mod tests {
 
     #[test]
     fn test_solve_single_example_input() {
-        let input = String::from(INPUT_RAW);
+        let input = util::into_lines_vec(&String::from(INPUT_RAW));
         let actual = solve_1(&input);
         let expected: u128 = 24000;
         assert_eq!(actual, expected)

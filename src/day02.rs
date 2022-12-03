@@ -18,7 +18,7 @@ impl Outcome {
 }
 
 
-pub fn solve_1(input: &String) -> u32 {
+pub fn solve_1(input: &Vec<String>) -> u32 {
     let tuples = generate_tuples(input);
     let outcomes: Vec<u8> = tuples.into_iter()
         .map(|x| calculate_score(x.0, translate_encryption(x.1)))
@@ -33,7 +33,7 @@ pub fn solve_1(input: &String) -> u32 {
     result
 }
 
-pub fn solve_2(input: &String) -> u32 {
+pub fn solve_2(input: &Vec<String>) -> u32 {
     let tuples = generate_tuples(input);
     let outcomes: Vec<u8> = tuples.into_iter()
         .map(|x| calculate_score(x.0, predict((x.0, x.1))))
@@ -80,9 +80,8 @@ fn make_loss(input: char) -> char {
 }
 
 
-fn generate_tuples(input: &String) -> Vec<(char, char)> {
-    let splits: Vec<&str> = input.split('\n').collect();
-    splits.into_iter()
+fn generate_tuples(input: &Vec<String>) -> Vec<(char, char)> {
+    input.into_iter()
         .filter(|s|s.len() == 3)
         .map(|s| (s.as_bytes()[0] as char, s.as_bytes()[2] as char)).collect()
 }
@@ -130,7 +129,8 @@ mod tests {
 
     #[test]
     fn solve_1_test_input() {
-        let actual = solve_1(&String::from(INPUT_RAW));
+        let input = util::into_lines_vec(&String::from(INPUT_RAW));
+        let actual = solve_1(&input);
         assert_eq!(15, actual);
     }
     
@@ -140,13 +140,13 @@ mod tests {
         let input2 = ('B', 'X');
         let input3 = ('C', 'Z');
 
-        assert_eq!(Outcome::WIN(2), calculate_score(input1.0, translate_encryption(input1.1)));
+        assert_eq!(WIN(2), calculate_score(input1.0, translate_encryption(input1.1)));
         assert_eq!(8, calculate_score(input1.0, translate_encryption(input1.1)).get_total_score());
 
-        assert_eq!(Outcome::LOSS(1), calculate_score(input2.0, translate_encryption(input2.1)));
+        assert_eq!(LOSS(1), calculate_score(input2.0, translate_encryption(input2.1)));
         assert_eq!(1, calculate_score(input2.0, translate_encryption(input2.1)).get_total_score());
 
-        assert_eq!(Outcome::DRAW(3), calculate_score(input3.0, translate_encryption(input3.1)));
+        assert_eq!(DRAW(3), calculate_score(input3.0, translate_encryption(input3.1)));
         assert_eq!(6, calculate_score(input3.0, translate_encryption(input3.1)).get_total_score());
     }
 
@@ -161,5 +161,6 @@ mod tests {
     fn generate_solution_2() {
         let input = util::get_input(2);
         let actual = solve_2(&input);
+        assert_eq!(12316, actual)
     }
 }
