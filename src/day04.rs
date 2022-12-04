@@ -1,3 +1,9 @@
+use std::borrow::Borrow;
+use std::slice::SliceIndex;
+use std::sync::{Arc, Mutex};
+use std::sync::atomic::AtomicU32;
+use std::thread;
+
 struct Pair<'a> {
     content: &'a str
 }
@@ -83,6 +89,29 @@ pub fn solve_2(input: &Vec<String>) -> u32{
     sum
 }
 
+pub fn solve_1_parallel(input: &Vec<String>, thread_count: usize) -> u32{
+    let sum = Arc::new(Mutex::new(0));
+
+    let slice_size = input.len() / thread_count;
+    for id in 0..thread_count {
+        thread::scope(|s| {
+            s.spawn(|| {
+                let mut thread_sum = 0;
+                for i in id * slice_size..id * slice_size + slice_size {
+                    let curr = input.get(i).unwrap();
+                    let pair = Pair::new(curr.as_str());
+                    if pair.one_contains_the_other() {
+                        thread_sum += 1;
+                    }
+                }
+                *sum.lock().unwrap() += thread_sum;
+            });
+        });
+    }
+
+    return *sum.lock().unwrap();
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -130,6 +159,13 @@ mod tests {
     fn generate_solution_1() {
         let input = util::get_input(4);
         let actual = solve_1(&input);
+        assert_eq!(588, actual)
+    }
+
+    #[test]
+    fn generate_solution_1_parallel() {
+        let input = util::get_input(4);
+        let actual = solve_1_parallel(&input, 10);
         assert_eq!(588, actual)
     }
 
