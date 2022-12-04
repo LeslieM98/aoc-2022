@@ -14,5 +14,11 @@ pub fn day02_benches(c: &mut Criterion) {
     c.bench_function("Day02.2: ", |b| b.iter(|| day02::solve_2(&input)));
 }
 
-criterion_group!(benches, day02_benches);
+pub fn day03_benches(c: &mut Criterion) {
+    let input = util::get_input(3);
+    c.bench_function("Day03.1: ", |b| b.iter(|| day03::solve_1(&input)));
+    c.bench_function("Day03.2: ", |b| b.iter(|| day03::solve_2(&input)));
+}
+
+criterion_group!(benches, day03_benches);
 criterion_main!(benches);
