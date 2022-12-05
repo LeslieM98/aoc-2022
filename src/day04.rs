@@ -1,7 +1,4 @@
-use std::borrow::Borrow;
-use std::slice::SliceIndex;
-use std::sync::{Arc, Mutex};
-use std::sync::atomic::AtomicU32;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::thread;
 
 struct Pair<'a> {
@@ -90,7 +87,7 @@ pub fn solve_2(input: &Vec<String>) -> u32{
 }
 
 pub fn solve_1_parallel(input: &Vec<String>, thread_count: usize) -> u32{
-    let sum = Arc::new(Mutex::new(0));
+    let sum = AtomicU32::new(0);
 
     let slice_size = input.len() / thread_count;
     for id in 0..thread_count {
@@ -104,12 +101,12 @@ pub fn solve_1_parallel(input: &Vec<String>, thread_count: usize) -> u32{
                         thread_sum += 1;
                     }
                 }
-                *sum.lock().unwrap() += thread_sum;
+                sum.fetch_add(thread_sum, Ordering::Relaxed);
             });
         });
     }
 
-    return *sum.lock().unwrap();
+    return sum.load(Ordering::Relaxed);
 }
 
 
