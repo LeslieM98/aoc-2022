@@ -10,6 +10,13 @@ struct Warehouse {
 
 impl Warehouse {
 
+    pub fn get_horizontal_index_from_position(position: usize) -> usize {
+        if position == 0{
+            return 1;
+        }
+        return 1 + position * 4;
+    }
+
     pub fn parse_stacks(input: &Vec<String>) -> Vec<Vec<char>>{
         let mut stacks = vec![];
         let mut end_idx = 0;
@@ -25,6 +32,20 @@ impl Warehouse {
             let bytes = input[end_idx-1].as_bytes();
             if (bytes[i] as char).is_ascii_digit() {
                 stacks.push(vec![]);
+            }
+        }
+
+        for line_idx in end_idx .. 0 {
+            let line = input.get(line_idx).unwrap();
+            for i in 0..stacks.len() {
+                let position = Warehouse::get_horizontal_index_from_position(i);
+                if position >= line.len() {
+                    break;
+                }
+                let char = line.as_bytes()[position] as char;
+                if !char.is_whitespace() {
+                    stacks.get_mut(i).unwrap().push(char);
+                }
             }
         }
 
@@ -47,5 +68,19 @@ mod tests {
         let input = get_input();
         let actual = Warehouse::parse_stacks(&input).len();
         assert_eq!(3, actual);
+    }
+
+    #[test]
+    fn correct_stack_init() {
+        let input = get_input();
+        let actual = Warehouse::parse_stacks(&input);
+        assert_eq!(vec![vec!['Z', 'N'], vec!['M', 'C', 'D'], vec!['P']], actual)
+    }
+
+    #[test]
+    fn correct_stack_position() {
+        assert_eq!(1, Warehouse::get_horizontal_index_from_position(0));
+        assert_eq!(5, Warehouse::get_horizontal_index_from_position(1));
+        assert_eq!(9, Warehouse::get_horizontal_index_from_position(2));
     }
 }
