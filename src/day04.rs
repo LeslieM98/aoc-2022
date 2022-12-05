@@ -21,7 +21,13 @@ impl Pair<'_> {
     }
 
     fn get_elves(&self) -> Vec<&str> {
-        self.content.split(',').collect()
+        for i in 0..self.content.len() {
+            let curr = self.content.as_bytes()[i];
+            if curr == ',' as u8 {
+                return vec![&self.content[0..i], &self.content[i+1..self.content.len()]];
+            }
+        }
+        panic!();
     }
     pub fn first(&self) -> (usize, usize) {
         let elves = self.get_elves();
