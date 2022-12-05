@@ -11,10 +11,13 @@ impl Pair<'_> {
     }
 
     fn extract_range(input: &str) -> (usize, usize) {
-        let split: Vec<&str> = input.split('-').collect();
-        let left = split.get(0).unwrap().parse();
-        let right = split.get(1).unwrap().parse();
-        return (left.unwrap(), right.unwrap());
+        for i in 0..input.len() {
+            let curr = input.as_bytes()[i];
+            if curr == '-' as u8 {
+                return (input[0..i].parse().unwrap(), input[i+1..input.len()].parse().unwrap());
+            }
+        }
+        panic!();
     }
 
     fn get_elves(&self) -> Vec<&str> {
