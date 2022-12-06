@@ -7,24 +7,34 @@ pub fn solve_2(input: &Vec<String>) -> u32 {
 }
 
 fn find_marker(message: &str, marker_length: usize) -> u32 {
-    for i in 0..message.len() - marker_length {
+    let mut i = 0;
+    while i < message.len() - marker_length {
         let curr = &message[i..i+marker_length];
-        if only_individual_chars(curr) {
-            return (i+marker_length) as u32;
+        let marker = only_individual_chars(curr);
+        match marker {
+            MessageMarker::Marker => return (i+marker_length) as u32,
+            MessageMarker::Skip(x) => i += x
         }
     }
     panic!();
 }
 
-fn only_individual_chars(input: &str) -> bool {
+#[derive(Debug, PartialEq)]
+enum MessageMarker {
+    Marker,
+    Skip(usize)
+}
+
+fn only_individual_chars(input: &str) -> MessageMarker {
     let mut v = vec![];
     for c in input.chars() {
-        if v.contains(&c) {
-            return false;
+        let skip = v.iter().position(|x| *x == c);
+        match skip {
+            Some(x) => return MessageMarker::Skip(x + 1),
+            None => v.push(c)
         }
-        v.push(c);
     }
-    return true;
+    return MessageMarker::Marker;
 }
 
 
@@ -53,5 +63,11 @@ mod tests {
         let input = vec![String::from("bvwbjplbgvbhsrlpgdmjqwftvncz")];
         let actual = solve_1(&input);
         assert_eq!(5, actual)
+    }
+
+    #[test]
+    fn test_skip() {
+        let actual = only_individual_chars("abab");
+        assert_eq!(MessageMarker::Skip(1), actual);
     }
 }
