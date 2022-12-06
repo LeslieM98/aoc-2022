@@ -1,3 +1,11 @@
+pub fn solve_1(input: &Vec<String>) -> String {
+    Warehouse::parse(&input, Instruction::execute)
+}
+
+pub fn solve_2(input: &Vec<String>) -> String {
+    Warehouse::parse(&input, Instruction::execute_stacked)
+}
+
 #[derive(PartialEq, Debug)]
 struct Instruction {
     amount: usize,
@@ -60,6 +68,19 @@ impl Instruction {
             to.push(tmp);
         }
     }
+
+    pub fn execute_stacked(&self, stacks: &mut Vec<Vec<char>>) {
+        let mut t_vec = vec![];
+        for _ in 0..self.amount {
+            let from = stacks.get_mut(self.from - 1).unwrap();
+            let tmp = from.pop().unwrap();
+            t_vec.push(tmp);
+        }
+        let to = stacks.get_mut(self.to - 1).unwrap();
+        for i in t_vec.into_iter().rev() {
+            to.push(i);
+        }
+    }
 }
 
 #[derive(PartialEq, Debug)]
@@ -76,7 +97,8 @@ impl Warehouse {
         return 1 + position * 4;
     }
 
-    pub fn parse(input: &Vec<String>) -> String{
+    pub fn parse<F>(input: &Vec<String>, executor: F) -> String where
+    F: Fn(&Instruction, &mut Vec<Vec<char>>) -> (){
         let mut stacks = vec![];
         let mut end_idx = 0;
         for line_idx in 0..input.len() {
@@ -111,7 +133,7 @@ impl Warehouse {
         for line_idx in end_idx+1..input.len() {
             let line = input.get(line_idx).unwrap();
             let instruction = Instruction::parse(line);
-            instruction.execute(&mut stacks);
+            executor(&instruction, &mut stacks);
         }
 
         let mut solution = String::new();
@@ -138,7 +160,7 @@ mod tests {
     #[test]
     fn correct_stack_count() {
         let input = get_input();
-        let actual = Warehouse::parse(&input).len();
+        let actual = Warehouse::parse(&input, Instruction::execute).len();
         assert_eq!(3, actual);
     }
 
@@ -159,14 +181,28 @@ mod tests {
     #[test]
     fn generate_solution_1_test_input() {
         let input = get_input();
-        let actual = Warehouse::parse(&input);
+        let actual = Warehouse::parse(&input, Instruction::execute);
         assert_eq!(String::from("CMZ"), actual);
+    }
+
+    #[test]
+    fn generate_solution_2_test_input() {
+        let input = get_input();
+        let actual = solve_2(&input);
+        assert_eq!(String::from("MCD"), actual);
     }
 
     #[test]
     fn generate_solution_1() {
         let input = util::get_input(5);
-        let actual = Warehouse::parse(&input);
-        assert_eq!(String::new(), actual);
+        let actual = solve_1(&input);
+        assert_eq!(String::from("LJSVLTWQM"), actual);
+    }
+
+    #[test]
+    fn generate_solution_2() {
+        let input = util::get_input(5);
+        let actual = solve_2(&input);
+        assert_eq!(String::from(""), actual);
     }
 }
