@@ -203,6 +203,6 @@ mod tests {
     fn generate_solution_2() {
         let input = util::get_input(5);
         let actual = solve_2(&input);
-        assert_eq!(String::from(""), actual);
+        assert_eq!(String::from("BRQWDBBJM"), actual);
     }
 }

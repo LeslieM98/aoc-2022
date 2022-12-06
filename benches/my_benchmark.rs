@@ -27,5 +27,11 @@ pub fn day04_benches(c: &mut Criterion) {
     c.bench_function("Day04.1 threaded: ", |b| b.iter(|| day04::solve_1_parallel(&input, 2)));
 }
 
-criterion_group!(benches, day04_benches);
+pub fn day05_benches(c: &mut Criterion) {
+    let input = util::get_input(5);
+    c.bench_function("Day05.1: ", |b| b.iter(|| day05::solve_1(&input)));
+    c.bench_function("Day05.2: ", |b| b.iter(|| day05::solve_2(&input)));
+}
+
+criterion_group!(benches, day05_benches);
 criterion_main!(benches);
