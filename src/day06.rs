@@ -1,9 +1,16 @@
-fn solve_1(input: &Vec<String>) -> u32 {
-    let data = input.first().unwrap().as_str();
-    for i in 0..data.len() - 4 {
-        let curr = &data[i..i+4];
+pub fn solve_1(input: &Vec<String>) -> u32 {
+    find_marker(input.first().unwrap().as_str(), 4)
+}
+
+pub fn solve_2(input: &Vec<String>) -> u32 {
+    find_marker(input.first().unwrap().as_str(), 14)
+}
+
+fn find_marker(message: &str, marker_length: usize) -> u32 {
+    for i in 0..message.len() - marker_length {
+        let curr = &message[i..i+marker_length];
         if only_individual_chars(curr) {
-            return (i+4) as u32;
+            return (i+marker_length) as u32;
         }
     }
     panic!();
@@ -20,9 +27,7 @@ fn only_individual_chars(input: &str) -> bool {
     return true;
 }
 
-fn solve_2() -> u32 {
-    todo!()
-}
+
 
 #[cfg(test)]
 mod tests {
@@ -34,6 +39,13 @@ mod tests {
         let input = get_input(6);
         let actual = solve_1(&input);
         assert_eq!(1658, actual)
+    }
+
+    #[test]
+    fn generate_solution_part2() {
+        let input = get_input(6);
+        let actual = solve_2(&input);
+        assert_eq!(2260, actual)
     }
 
     #[test]

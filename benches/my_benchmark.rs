@@ -1,5 +1,4 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use aoc22::util;
 use aoc22::*;
 
 pub fn day01_benches(c: &mut Criterion) {
@@ -33,5 +32,11 @@ pub fn day05_benches(c: &mut Criterion) {
     c.bench_function("Day05.2: ", |b| b.iter(|| day05::solve_2(&input)));
 }
 
-criterion_group!(benches, day05_benches);
+pub fn day06_benches(c: &mut Criterion) {
+    let input = util::get_input(6);
+    c.bench_function("Day06.1: ", |b| b.iter(|| day06::solve_1(&input)));
+    c.bench_function("Day06.2: ", |b| b.iter(|| day06::solve_2(&input)));
+}
+
+criterion_group!(benches, day06_benches);
 criterion_main!(benches);
