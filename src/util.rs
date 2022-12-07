@@ -1,9 +1,9 @@
 use std::fs;
 
-fn build_input_path(day: i8) -> String {
+fn build_input_path(file_name: &str, day: i8) -> String {
     let base_path = "./input/";
     let mut file = String::from(base_path);
-    file.push_str("day");
+    file.push_str(file_name);
     let mut day_str = day.to_string();
     if day_str.len() < 2 {
         day_str.insert(0, '0');
@@ -18,7 +18,17 @@ pub fn into_lines_vec(input: &String) -> Vec<String> {
 }
 
 pub fn get_input(day: i8) -> Vec<String> {
-    let file = build_input_path(day);
+    let file = build_input_path("day", day);
+    let content = fs::read_to_string(file)
+        .expect("Could not find File");
+
+    let splitted = into_lines_vec(&content);
+
+    return splitted;
+}
+
+pub fn get_test_input(day: i8) -> Vec<String> {
+    let file = build_input_path("test", day);
     let content = fs::read_to_string(file)
         .expect("Could not find File");
 
@@ -33,8 +43,10 @@ mod tests {
 
     #[test]
     fn test_build_input_path() {
-        assert_eq!(String::from("./input/day01.txt"), build_input_path(1));
-        assert_eq!(String::from("./input/day22.txt"), build_input_path(22));
+        assert_eq!(String::from("./input/day01.txt"), build_input_path("day", 1));
+        assert_eq!(String::from("./input/day22.txt"), build_input_path("day", 22));
+        assert_eq!(String::from("./input/test01.txt"), build_input_path("test", 1));
+        assert_eq!(String::from("./input/test22.txt"), build_input_path("test", 22));
     }
 
     #[test]
