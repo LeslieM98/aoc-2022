@@ -1,4 +1,5 @@
 use std::{collections::HashMap, fmt::Display};
+use std::hash::{Hash, Hasher};
 
 type Treeid = usize;
 
@@ -22,31 +23,46 @@ struct Tree {
 }
 
 #[derive(Debug, PartialEq)]
-enum Output<'a> {
+enum Output{
     CDRoot,
     CDBack,
-    CDSubdir(&'a str),
+    CDSubdir(String),
     LS,
-    Directory(&'a str),
-    File(&'a str, u32)
+    Directory(String),
+    File(String, u32)
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq)]
 struct Path {
     path: Vec<String>
 }
 
-impl Display for Path {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!();
+impl Clone for Path {
+    fn clone(&self) -> Self {
+        let mut path = vec![];
+        for p in &self.path {
+            path.push(p.clone());
+        }
+        return Path {path};
     }
 }
 
-impl Output<'_> {
-    fn lex(input: &str) -> Output {
+impl ToString for Path {
+    fn to_string(&self) -> String {
+        let mut str = String::new();
+        for p in &self.path {
+            str.push_str(p.as_str());
+            str.push('/');
+        }
+        return str;
+    }
+}
+
+impl Output {
+    fn lex(input: String) -> Output {
         if !input.starts_with('$') {
             let space_pos = input.find(' ').unwrap();
-            let name = &input[space_pos+1..input.len()];
+            let name = String::from(&input[space_pos+1..input.len()]);
             if input.as_bytes()[0].is_ascii_digit() {
                 let size = input[0..space_pos].parse().unwrap();
                 Output::File(name, size)
@@ -60,17 +76,17 @@ impl Output<'_> {
         }else if input.eq("$ ls") {
             Output::LS
         } else {
-            Output::CDSubdir(&input[5..input.len()])
+            Output::CDSubdir(String::from(&input[5..input.len()]))
         }
     }
 }
 
 impl Tree {
-    fn parse(input: &Vec<String>) -> Vec<(Path, u32)> {
+    fn parse(input: Vec<String>) -> Vec<(Path, u32)> {
         let mut files: Vec<(Path, u32)> = vec![];
         let mut pwd = vec![String::from("/")];
-        for line in input {
-            let output = Output::lex(line);
+        for line in &input {
+            let output = Output::lex(line.clone());
             match output {
                 Output::CDSubdir(x) => pwd.push(String::from(x)),
                 Output::CDBack => {pwd.pop();},
@@ -101,36 +117,47 @@ impl Path {
 }
 
 pub fn solve_1(input: &Vec<String>) -> u32 {
-    let parsed_files = Tree::parse(input);
-    let map = generate_parent_map(&parsed_files);
+    let parsed_files = Tree::parse(input.clone());
+    let paths = generate_parent_map(parsed_files.clone());
     let mut result = 0;
-    for x in map.values() {
-        if *x <= 100000 {
-            result += x;
+
+    let mut visited_paths: Vec<Path> = vec![];
+    for (path, size) in paths {
+        if size <= 100000  {
+            for visited_path in &visited_paths {
+                if path.to_string().starts_with(visited_path.to_string().as_str()) {
+                    continue;
+                }
+            }
+            visited_paths.push(path);
+            result += size;
         }
+    }
+    for visited_path in visited_paths {
+        println!("{}", visited_path.to_string());
     }
     return result;
 }
 
-fn generate_parent_map(parsed_files: &Vec<(Path, u32)>) -> HashMap<&Path, u32> {
-    let mut map = HashMap::new();
-    let mut counter_contained = 0;
-    let mut counter_new = 0;
-    for (path, size) in parsed_files {
-        for parent in path.getParents() {
-            if map.contains_key(&parent) {
-                let old = map.get(&parent).unwrap();
-                map.insert(path, old + size);
-                counter_contained += 1;
-            } else {
-                map.insert(path, *size);
-                counter_new += 1;
+fn generate_parent_map(parsed_files: Vec<(Path, u32)>) -> Vec<(Path, u32)> {
+    let mut paths: Vec<(Path, u32)> = vec![];
+    for (path, size) in &parsed_files {
+        for parent in &path.getParents() {
+            if !paths.contains(&(parent.clone(), 0)) {
+                paths.push((parent.clone(), 0));
             }
         }
     }
-    println!("counter_contained: {}", counter_contained);
-    println!("counter_new: {}", counter_new);
-    return map;
+    for (path, size) in &parsed_files {
+        for parent in &path.getParents() {
+            let idx = paths.iter().position(|x| x.0.eq(parent)).unwrap();
+            let (_, old_size) = paths[idx];
+            paths[idx] = (parent.clone(), old_size + size);
+        }
+    }
+
+    paths.sort_by(|(x, _),(y,_)| x.path.len().partial_cmp(&y.path.len()).unwrap());
+    return paths;
 }
 
 pub fn solve_2(input: &Vec<String>) -> u32 {
@@ -144,12 +171,12 @@ mod tests {
 
     #[test]
     fn correct_outputs() {
-        assert_eq!(Output::LS, Output::lex("$ ls"));
-        assert_eq!(Output::CDRoot, Output::lex("$ cd /"));
-        assert_eq!(Output::CDBack, Output::lex("$ cd .."));
-        assert_eq!(Output::CDSubdir("a"), Output::lex("$ cd a"));
-        assert_eq!(Output::Directory("a"), Output::lex("dir a"));
-        assert_eq!(Output::File("f", 29116), Output::lex("29116 f"));
+        assert_eq!(Output::LS, Output::lex(String::from("$ ls")));
+        assert_eq!(Output::CDRoot, Output::lex(String::from("$ cd /")));
+        assert_eq!(Output::CDBack, Output::lex(String::from("$ cd ..")));
+        assert_eq!(Output::CDSubdir(String::from("a")), Output::lex(String::from("$ cd a")));
+        assert_eq!(Output::Directory(String::from("a")), Output::lex(String::from("dir a")));
+        assert_eq!(Output::File(String::from("f"), 29116), Output::lex(String::from("29116 f")));
     }
 
     #[test]
@@ -162,10 +189,17 @@ mod tests {
     #[test]
     fn parse_tree() {
         let input = get_test_input(7);
-        let actual = Tree::parse(&input);
+        let actual = Tree::parse(input.clone());
         let expected_last_path: (Path, u32) = (Path{path:vec![String::from("/"), String::from("d"), String::from("k")]}, 7214296);
         assert_eq!(10, actual.len());
         assert_eq!(expected_last_path, *actual.last().unwrap());
+    }
+
+    #[test]
+    fn path_equals() {
+        let a = Path{path:vec![String::from("/")]};
+        let b = Path{path:vec![String::from("/")]};
+        assert_eq!(a, b);
     }
 
 }
