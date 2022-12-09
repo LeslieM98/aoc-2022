@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use super::util::Position;
 
 pub fn solve_1(input: &Vec<String>) -> u32 {
     let forest = Forest::parse(input);
@@ -46,17 +47,6 @@ pub fn solve_2(input: &Vec<String>) -> u32 {
 
 type Tree = u8;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
-struct Position{
-    x:usize,
-    y:usize
-}
-
-impl Position {
-    pub fn new(x: usize, y:usize) -> Position {
-        Position{x, y}
-    }
-}
 
 struct Forest {
     trees: Vec<Vec<Tree>>

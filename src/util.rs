@@ -1,5 +1,41 @@
 use std::fs;
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+pub struct Position{
+    pub x:usize,
+    pub y:usize
+}
+
+impl Position {
+    pub fn new(x: usize, y:usize) -> Position {
+        Position{x, y}
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+pub struct PositionSigned {
+    pub x: i32,
+    pub y: i32
+}
+
+impl PositionSigned {
+    pub fn new(x: i32, y: i32) -> PositionSigned{
+        PositionSigned {x,y}
+    }
+
+    pub fn as_tuple(&self) -> (i32, i32) {
+        (self.x, self.y)
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+pub enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+}
+
 fn build_input_path(file_name: &str, day: i8) -> String {
     let base_path = "./input/";
     let mut file = String::from(base_path);
