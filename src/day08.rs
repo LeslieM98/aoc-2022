@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::hash::Hash;
 
 pub fn solve_1(input: &Vec<String>) -> u32 {
     let forest = Forest::parse(input);
@@ -32,7 +31,17 @@ pub fn solve_1(input: &Vec<String>) -> u32 {
 }
 
 pub fn solve_2(input: &Vec<String>) -> u32 {
-    todo!();
+    let forest = Forest::parse(input);
+    let mut highest = 0;
+    for x in 0..forest.trees.len() {
+        for y in 0..forest.trees.get(0).unwrap().len() {
+            let score = forest.create_walker(x,y).scenic_score();
+            if highest < score {
+                highest = score;
+            }
+        }
+    }
+    return highest;
 }
 
 type Tree = u8;
@@ -160,8 +169,36 @@ impl Walker<'_> {
         return visible;
     }
 
+    fn visible_trees_from_tree_house(&self, walk_direction: fn(&mut Self) -> bool) -> u32 {
+        let mut count = 0;
+        let mut walker = self.clone();
+        let tree_house_height = self.get();
+        if !walk_direction(&mut walker) {
+            return 0;
+        }
+
+        loop {
+            count += 1;
+            let curr = walker.get();
+            if  curr >= tree_house_height {
+                break;
+            }
+            if !walk_direction(&mut walker) {
+                break;
+            }
+        }
+        return count;
+    }
+
     pub fn get(&self) -> Tree {
         *self.forest.trees.get(self.position.y).unwrap().get(self.position.x).unwrap()
+    }
+
+    pub fn scenic_score(&self) -> u32 {
+        self.visible_trees_from_tree_house(Walker::walk_up)
+         * self.visible_trees_from_tree_house(Walker::walk_down)
+            * self.visible_trees_from_tree_house(Walker::walk_left)
+            * self.visible_trees_from_tree_house(Walker::walk_right)
     }
 }
 
@@ -180,14 +217,14 @@ mod tests {
     fn generate_solution_1() {
         let input = get_input(8);
         let actual = solve_1(&input);
-        assert_eq!(0, actual);
+        assert_eq!(1662, actual);
     }
 
     #[test]
     fn generate_solution_2() {
         let input = get_input(8);
         let actual = solve_2(&input);
-        assert_eq!(0, actual);
+        assert_eq!(537600, actual);
     }
 
     #[test]
@@ -201,7 +238,7 @@ mod tests {
     fn generate_solution_2_test_input() {
         let input = get_test_input(8);
         let actual = solve_2(&input);
-        assert_eq!(0, actual);
+        assert_eq!(8, actual);
     }
 
     #[test]
@@ -270,7 +307,7 @@ mod tests {
 
         walker = forest.create_walker(4,2);
         visible = walker.look_left();
-        assert_eq!(2, visible.len());
+        assert_eq!(4, visible.len());
         assert!(visible.contains(&Position::new(4,2)));
         assert!(visible.contains(&Position::new(3,2)));
 
@@ -302,5 +339,23 @@ mod tests {
         assert!(visible.contains(&Position::new(2,1)));
         assert!(visible.contains(&Position::new(1,2)));
         assert!(visible.contains(&Position::new(3,2)));
+    }
+
+    #[test]
+    fn correct_visible_from_treehouse() {
+        let input = get_test_input(8);
+        let forest = Forest::parse(&input);
+        let mut tree_house = forest.create_walker(2, 1);
+        assert_eq!(1, tree_house.visible_trees_from_tree_house(Walker::walk_up));
+        assert_eq!(1, tree_house.visible_trees_from_tree_house(Walker::walk_left));
+        assert_eq!(2, tree_house.visible_trees_from_tree_house(Walker::walk_right));
+        assert_eq!(2, tree_house.visible_trees_from_tree_house(Walker::walk_down));
+
+
+        tree_house = forest.create_walker(2, 3);
+        assert_eq!(2, tree_house.visible_trees_from_tree_house(Walker::walk_up));
+        assert_eq!(2, tree_house.visible_trees_from_tree_house(Walker::walk_left));
+        assert_eq!(1, tree_house.visible_trees_from_tree_house(Walker::walk_down));
+        assert_eq!(2, tree_house.visible_trees_from_tree_house(Walker::walk_right));
     }
 }
