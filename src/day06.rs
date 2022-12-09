@@ -48,14 +48,14 @@ mod tests {
     fn generate_solution_part1() {
         let input = get_input(6);
         let actual = solve_1(&input);
-        assert_eq!(1109, actual)
+        assert_eq!(1658, actual)
     }
 
     #[test]
     fn generate_solution_part2() {
         let input = get_input(6);
         let actual = solve_2(&input);
-        assert_eq!(3965, actual)
+        assert_eq!(2260, actual)
     }
 
     #[test]
